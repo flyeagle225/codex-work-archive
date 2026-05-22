@@ -1,0 +1,26 @@
+name: Feishu Boss Report Weekly Reminder
+
+on:
+  schedule:
+    # 18:00 Asia/Shanghai = 10:00 UTC
+    - cron: "0 10 * * 1"
+  workflow_dispatch:
+
+jobs:
+  send-reminder:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Send boss report reminder
+        env:
+          FEISHU_APP_ID: ${{ secrets.FEISHU_APP_ID }}
+          FEISHU_APP_SECRET: ${{ secrets.FEISHU_APP_SECRET }}
+          FEISHU_BOSS_REPORT_CHAT_ID: ${{ secrets.FEISHU_BOSS_REPORT_CHAT_ID }}
+        run: node ./cloud/boss-report-reminder.mjs

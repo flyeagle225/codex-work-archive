@@ -12,6 +12,7 @@ These reminders are wired to GitHub Actions so they can run when the local PC is
 - May 29 group task close reminder: 2026-05-29 17:00 Asia/Shanghai
 - Levanta new creator check: daily at 09:00 Asia/Shanghai
 - Morning Levanta and ad-data reminder: weekdays at 10:00 Asia/Shanghai
+- Boss report weekly dashboard reminder: Mondays at 18:00 Asia/Shanghai
 
 ## Required GitHub Secrets
 
@@ -21,6 +22,7 @@ These reminders are wired to GitHub Actions so they can run when the local PC is
 - `FEISHU_TASK_CHAT_ID`: Feishu group `独立站及站外运营`
 - `FEISHU_LIHUI_OPEN_ID`: Li Hui user open id
 - `FEISHU_MORNING_OPEN_ID`: morning reminder recipient open id
+- `FEISHU_BOSS_REPORT_CHAT_ID`: Feishu group `向大佬汇报`
 - `LEVANTA_API_KEY`
 
 ## Optional GitHub Secret
@@ -33,4 +35,5 @@ These reminders are wired to GitHub Actions so they can run when the local PC is
 - `.github/workflows/feishu-lihui-workday-reminder.yml`
 - `.github/workflows/feishu-task-close-reminders.yml`
 - `.github/workflows/feishu-morning-workday-reminder.yml`
+- `.github/workflows/feishu-boss-report-weekly-reminder.yml`
 - `.github/workflows/levanta-daily-check.yml`
