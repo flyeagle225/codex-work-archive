@@ -1,0 +1,27 @@
+name: Feishu Morning Workday Reminder
+
+on:
+  schedule:
+    - cron: "0 2 * * 1-5"
+  workflow_dispatch:
+
+jobs:
+  send-reminder:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Send reminder
+        env:
+          FEISHU_APP_ID: ${{ secrets.FEISHU_APP_ID }}
+          FEISHU_APP_SECRET: ${{ secrets.FEISHU_APP_SECRET }}
+          FEISHU_RECEIVE_ID_TYPE: open_id
+          FEISHU_RECEIVE_ID: ${{ secrets.FEISHU_MORNING_OPEN_ID }}
+          FEISHU_MAIL_SUMMARY_TEXT: ${{ secrets.FEISHU_MAIL_SUMMARY_TEXT }}
+        run: node ./cloud/morning-workday-reminder.mjs

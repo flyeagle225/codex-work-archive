@@ -1,0 +1,43 @@
+name: Feishu LiHui Workday Reminder
+
+on:
+  schedule:
+    # 17:00 Asia/Shanghai = 09:00 UTC
+    - cron: "0 9 * * 1-5"
+  workflow_dispatch:
+
+jobs:
+  send-reminder:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Send reminder
+        env:
+          FEISHU_APP_ID: ${{ secrets.FEISHU_APP_ID }}
+          FEISHU_APP_SECRET: ${{ secrets.FEISHU_APP_SECRET }}
+          FEISHU_RECEIVE_ID_TYPE: open_id
+          FEISHU_RECEIVE_ID: ${{ secrets.FEISHU_LIHUI_OPEN_ID }}
+          FEISHU_TEXT: |
+            【每日提醒｜独立站数据更新】
+            李辉，麻烦今天下班前更新一下独立站投放出单数据，并填写至下方表格：
+
+            FlyLily站内数据：
+            https://acnnjmus15ma.feishu.cn/sheets/UKULs2H11hb948tKnhIceaYvnIU?from=from_copylink
+
+            重点确认：
+            1. 昨日花费
+            2. 出单量
+            3. 点击数和展示量
+            4. CPC 和千展成本
+            5. ROI / CPA 是否有异常
+
+            如果数据异常，也麻烦简单备注原因和明日动作。
+            谢谢。
+        run: node ./cloud/send-text-message.mjs

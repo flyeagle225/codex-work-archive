@@ -1,0 +1,28 @@
+name: Levanta Daily Check
+
+on:
+  schedule:
+    - cron: "0 1 * * *"
+  workflow_dispatch:
+
+jobs:
+  run-check:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Run Levanta check
+        shell: pwsh
+        env:
+          LEVANTA_API_KEY: ${{ secrets.LEVANTA_API_KEY }}
+        run: |
+          ./cloud/levanta-new-creators.ps1 -Source connections
+
+      - name: Upload reports
+        uses: actions/upload-artifact@v4
+        with:
+          name: levanta-reports
+          path: |
+            levanta-reports/**
+            levanta-state/**

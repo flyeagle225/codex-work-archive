@@ -1,0 +1,34 @@
+name: Feishu Outbound Workday Reminder
+
+on:
+  schedule:
+    # 10:00 Asia/Shanghai = 02:00 UTC
+    - cron: "0 2 * * 1-5"
+  workflow_dispatch:
+
+jobs:
+  send-reminder:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Send reminder
+        env:
+          FEISHU_APP_ID: ${{ secrets.FEISHU_APP_ID }}
+          FEISHU_APP_SECRET: ${{ secrets.FEISHU_APP_SECRET }}
+          FEISHU_RECEIVE_ID_TYPE: chat_id
+          FEISHU_RECEIVE_ID: ${{ secrets.FEISHU_OUTBOUND_CHAT_ID }}
+          FEISHU_TEXT: |
+            <at user_id="all">所有人</at>
+
+            请各位同学及时更新今日站外投放出单数据，并填写至表格链接；如有新的投放需求，请第一时间同步给黄观锦。
+
+            站外投放及红人推广 / 站外需求及效果评估：
+            https://acnnjmus15ma.feishu.cn/wiki/Hw3hwyANlivCHakHtffcVSfSnlg?from=from_copylink
+        run: node ./cloud/send-text-message.mjs

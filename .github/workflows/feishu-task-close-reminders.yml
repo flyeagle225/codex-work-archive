@@ -1,0 +1,29 @@
+name: Feishu Task Close Reminders
+
+on:
+  schedule:
+    # 2026-05-23 16:00 Asia/Shanghai
+    - cron: "0 8 23 5 *"
+    # 2026-05-29 17:00 Asia/Shanghai
+    - cron: "0 9 29 5 *"
+  workflow_dispatch:
+
+jobs:
+  send-reminder:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Send reminder
+        env:
+          FEISHU_APP_ID: ${{ secrets.FEISHU_APP_ID }}
+          FEISHU_APP_SECRET: ${{ secrets.FEISHU_APP_SECRET }}
+          FEISHU_RECEIVE_ID_TYPE: chat_id
+          FEISHU_RECEIVE_ID: ${{ secrets.FEISHU_TASK_CHAT_ID }}
+        run: node ./cloud/task-close-reminder.mjs

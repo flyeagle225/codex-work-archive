@@ -1,0 +1,252 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>FlyLily 独立站投流数据仪表盘</title>
+  <style>
+    :root {
+      --bg: #f6f7f9;
+      --panel: #ffffff;
+      --ink: #1f2937;
+      --muted: #667085;
+      --line: #d9dee7;
+      --blue: #2f6fed;
+      --green: #198754;
+      --orange: #c56a13;
+      --red: #c93434;
+      --teal: #0f766e;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: "Microsoft YaHei", "PingFang SC", Arial, sans-serif;
+      line-height: 1.5;
+    }
+    .wrap { max-width: 1180px; margin: 0 auto; padding: 28px; }
+    header {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 18px;
+      margin-bottom: 18px;
+    }
+    h1 { margin: 0 0 6px; font-size: 28px; letter-spacing: 0; }
+    .sub { color: var(--muted); font-size: 14px; }
+    .source {
+      text-align: right;
+      font-size: 13px;
+      color: var(--muted);
+      min-width: 240px;
+    }
+    .source a { color: var(--blue); text-decoration: none; }
+    .alert {
+      background: #fff7e6;
+      border: 1px solid #ffd591;
+      color: #8a4b08;
+      padding: 12px 14px;
+      border-radius: 8px;
+      margin-bottom: 18px;
+    }
+    .grid { display: grid; gap: 14px; }
+    .cards { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+    .two { grid-template-columns: 1.2fr .8fr; margin-top: 14px; }
+    .card, .panel {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 16px;
+      box-shadow: 0 1px 2px rgba(16, 24, 40, .04);
+    }
+    .label { color: var(--muted); font-size: 13px; margin-bottom: 8px; }
+    .value { font-size: 28px; font-weight: 700; }
+    .hint { color: var(--muted); font-size: 12px; margin-top: 8px; }
+    .good { color: var(--green); }
+    .bad { color: var(--red); }
+    .warn { color: var(--orange); }
+    h2 { margin: 0 0 12px; font-size: 18px; }
+    table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    th, td { border-bottom: 1px solid var(--line); padding: 10px 8px; text-align: left; }
+    th { color: var(--muted); font-weight: 600; background: #fafbfc; }
+    tbody tr:hover { background: #f8fafc; }
+    .bar-list { display: grid; gap: 12px; }
+    .bar-row { display: grid; grid-template-columns: 82px 1fr 64px; align-items: center; gap: 10px; font-size: 13px; }
+    .bar-track { height: 10px; background: #edf1f7; border-radius: 99px; overflow: hidden; }
+    .bar { height: 100%; background: var(--blue); border-radius: 99px; }
+    .bar.teal { background: var(--teal); }
+    .bar.orange { background: var(--orange); }
+    .split { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+    .mini {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 12px;
+      background: #fbfcfe;
+    }
+    .mini strong { display: block; font-size: 20px; margin-top: 4px; }
+    .notes { margin: 0; padding-left: 18px; color: var(--ink); }
+    .notes li { margin: 8px 0; }
+    @media (max-width: 880px) {
+      header { display: block; }
+      .source { text-align: left; margin-top: 10px; }
+      .cards, .two, .split { grid-template-columns: 1fr; }
+      .wrap { padding: 18px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div>
+        <h1>FlyLily 独立站投流数据仪表盘</h1>
+        <div class="sub">数据来源：飞书表格「FlyLily站内数据」；拉取时间：2026-05-21 14:55（Asia/Shanghai）</div>
+      </div>
+      <div class="source">
+        <a href="https://acnnjmus15ma.feishu.cn/sheets/UKULs2H11hb948tKnhIceaYvnIU?from=from_copylink">打开原始飞书表格</a>
+      </div>
+    </header>
+
+    <div class="alert">
+      昨天 2026-05-20 的花费、订单、销售额在表内仍为空或为 0；当前仪表盘按已填写数据展示，未录入数据不推断。
+    </div>
+
+    <section class="grid cards">
+      <div class="card">
+        <div class="label">本周广告消耗（5/18-5/24）</div>
+        <div class="value">$38.99</div>
+        <div class="hint">目前主要来自 Meta；5/20-5/21 暂无数据。</div>
+      </div>
+      <div class="card">
+        <div class="label">本周广告销售额</div>
+        <div class="value">$0.00</div>
+        <div class="hint bad">本周已录入数据暂无订单转化。</div>
+      </div>
+      <div class="card">
+        <div class="label">本周订单数</div>
+        <div class="value">0</div>
+        <div class="hint">需要李辉继续补齐最新投放数据。</div>
+      </div>
+      <div class="card">
+        <div class="label">本周广告 ROI</div>
+        <div class="value">0.00</div>
+        <div class="hint warn">消耗已有，销售额暂无。</div>
+      </div>
+    </section>
+
+    <section class="grid two">
+      <div class="panel">
+        <h2>本周与上周对比</h2>
+        <div class="split">
+          <div class="mini">
+            广告消耗
+            <strong>$38.99</strong>
+            <span class="hint">上周 $174.28</span>
+          </div>
+          <div class="mini">
+            销售额
+            <strong>$0.00</strong>
+            <span class="hint">上周 $138.69</span>
+          </div>
+          <div class="mini">
+            订单数
+            <strong>0</strong>
+            <span class="hint">上周 3 单</span>
+          </div>
+        </div>
+        <table style="margin-top: 14px;">
+          <thead>
+            <tr>
+              <th>周期</th>
+              <th>销售额</th>
+              <th>订单</th>
+              <th>流量</th>
+              <th>广告消耗</th>
+              <th>广告 ROI</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>5/18-5/24</td>
+              <td>$0.00</td>
+              <td>0</td>
+              <td>27</td>
+              <td>$38.99</td>
+              <td>0.00</td>
+            </tr>
+            <tr>
+              <td>5/11-5/17</td>
+              <td>$138.69</td>
+              <td>3</td>
+              <td>1629</td>
+              <td>$174.28</td>
+              <td>0.80</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="panel">
+        <h2>渠道消耗占比</h2>
+        <div class="bar-list">
+          <div class="bar-row">
+            <span>Meta 本周</span>
+            <div class="bar-track"><div class="bar" style="width: 100%;"></div></div>
+            <span>$38.99</span>
+          </div>
+          <div class="bar-row">
+            <span>TK 本周</span>
+            <div class="bar-track"><div class="bar teal" style="width: 0%;"></div></div>
+            <span>$0.00</span>
+          </div>
+          <div class="bar-row">
+            <span>Google 本周</span>
+            <div class="bar-track"><div class="bar orange" style="width: 0%;"></div></div>
+            <span>$0.00</span>
+          </div>
+        </div>
+        <div class="hint" style="margin-top: 16px;">上周：Meta $133.07，TK $41.21，Google 暂无录入。</div>
+      </div>
+    </section>
+
+    <section class="grid two">
+      <div class="panel">
+        <h2>日数据明细</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>日期</th>
+              <th>销售额</th>
+              <th>订单</th>
+              <th>流量</th>
+              <th>广告消耗</th>
+              <th>Meta</th>
+              <th>TK</th>
+              <th>广告 ROI</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>2026-05-21</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>0.00</td></tr>
+            <tr><td>2026-05-20</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>0.00</td></tr>
+            <tr><td>2026-05-19</td><td>-</td><td>-</td><td>-</td><td>$8.23</td><td>$8.23</td><td>$0.00</td><td>0.00</td></tr>
+            <tr><td>2026-05-18</td><td>$0.00</td><td>0</td><td>27</td><td>$30.76</td><td>$30.76</td><td>$0.00</td><td>0.00</td></tr>
+            <tr><td>2026-05-17</td><td>$45.99</td><td>1</td><td>92</td><td>$27.43</td><td>$27.43</td><td>$0.00</td><td>1.68</td></tr>
+            <tr><td>2026-05-15</td><td>$41.40</td><td>1</td><td>21</td><td>$12.78</td><td>$12.78</td><td>$0.00</td><td>3.24</td></tr>
+            <tr><td>2026-05-14</td><td>$51.30</td><td>1</td><td>138</td><td>$47.75</td><td>$47.75</td><td>$0.00</td><td>1.07</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="panel">
+        <h2>今日判断</h2>
+        <ul class="notes">
+          <li>5月20日的花费、出单量、CPC、千展成本还无法从表内得出，需要先补点击数、展示量和日消耗。</li>
+          <li>本周目前有 Meta 消耗 $38.99，但没有销售额和订单，需确认是未转化还是数据未同步。</li>
+          <li>表内暂未包含点击数和展示量字段，因此 CPC 和千展成本无法自动计算。</li>
+          <li>建议李辉补齐：花费、出单量、点击数、展示量、CPC、千展成本，并备注异常原因。</li>
+        </ul>
+      </div>
+    </section>
+  </div>
+</body>
+</html>
