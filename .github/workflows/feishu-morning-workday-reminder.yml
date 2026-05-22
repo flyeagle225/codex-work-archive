@@ -23,5 +23,4 @@ jobs:
           FEISHU_APP_SECRET: ${{ secrets.FEISHU_APP_SECRET }}
           FEISHU_RECEIVE_ID_TYPE: open_id
           FEISHU_RECEIVE_ID: ${{ secrets.FEISHU_MORNING_OPEN_ID }}
-          FEISHU_MAIL_SUMMARY_TEXT: ${{ secrets.FEISHU_MAIL_SUMMARY_TEXT }}
         run: node ./cloud/morning-workday-reminder.mjs

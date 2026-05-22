@@ -2,7 +2,7 @@
 
 These scripts are called by GitHub Actions and do not depend on the local PC.
 
-## Secrets
+## Required Secrets
 
 - `FEISHU_APP_ID`
 - `FEISHU_APP_SECRET`
@@ -10,16 +10,15 @@ These scripts are called by GitHub Actions and do not depend on the local PC.
 - `FEISHU_TASK_CHAT_ID`
 - `FEISHU_LIHUI_OPEN_ID`
 - `FEISHU_MORNING_OPEN_ID`
-- `FEISHU_MAIL_SUMMARY_TEXT`
 - `LEVANTA_API_KEY`
+
+## Optional Secret
+
+- `FEISHU_MAIL_SUMMARY_TEXT`: optional text for the morning reminder. If this secret is missing, the reminder still sends with a note to manually check the mail summary.
 
 ## Scripts
 
 - `send-text-message.mjs`: generic Feishu text sender
-- `task-close-reminder.mjs`: sends the weekly task close reminder
-- `morning-workday-reminder.mjs`: sends the morning Levanta and ad data reminder
+- `task-close-reminder.mjs`: sends the group task close reminder
+- `morning-workday-reminder.mjs`: sends the morning Levanta and ad-data reminder
 - `levanta-new-creators.ps1`: checks new Levanta creators and uploads reports as workflow artifacts
-
-## Remaining cloud dependency
-
-The morning reminder can already send from GitHub Actions, but the mail-summary section still needs a cloud mail source. Until that is connected, it reads `FEISHU_MAIL_SUMMARY_TEXT` from GitHub Secrets.

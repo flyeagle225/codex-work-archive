@@ -1,10 +1,9 @@
 import { requireEnv, sendTextMessage } from "./feishu-http.mjs";
 
 function buildMessage() {
-  const mailSummary = process.env.FEISHU_MAIL_SUMMARY_TEXT?.trim();
-  if (!mailSummary) {
-    throw new Error("Missing config: FEISHU_MAIL_SUMMARY_TEXT");
-  }
+  const mailSummary =
+    process.env.FEISHU_MAIL_SUMMARY_TEXT?.trim() ||
+    "邮件汇总尚未接入云端自动读取。请今天手动查看昨天黄观锦 CC 给你的红人邮件。";
 
   return `【工作日上午提醒｜Levanta 和投流数据】
 早上好，今天先看这三件事：
@@ -28,7 +27,7 @@ ${mailSummary}
 }
 
 async function main() {
-  requireEnv(["FEISHU_APP_ID", "FEISHU_APP_SECRET", "FEISHU_RECEIVE_ID_TYPE", "FEISHU_RECEIVE_ID", "FEISHU_MAIL_SUMMARY_TEXT"]);
+  requireEnv(["FEISHU_APP_ID", "FEISHU_APP_SECRET", "FEISHU_RECEIVE_ID_TYPE", "FEISHU_RECEIVE_ID"]);
   const messageId = await sendTextMessage({
     receiveIdType: process.env.FEISHU_RECEIVE_ID_TYPE,
     receiveId: process.env.FEISHU_RECEIVE_ID,
