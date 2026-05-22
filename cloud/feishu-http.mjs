@@ -45,6 +45,17 @@ async function getTenantAccessToken() {
   return data.tenant_access_token;
 }
 
+export async function feishuApiJson(path, options = {}) {
+  const token = await getTenantAccessToken();
+  return requestJson(`https://open.feishu.cn${path}`, {
+    ...options,
+    headers: {
+      authorization: `Bearer ${token}`,
+      ...(options.headers ?? {}),
+    },
+  });
+}
+
 export async function sendTextMessage({ receiveIdType, receiveId, text }) {
   const token = await getTenantAccessToken();
   const data = await requestJson(

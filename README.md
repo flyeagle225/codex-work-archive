@@ -25,6 +25,15 @@ These reminders are wired to GitHub Actions so they can run when the local PC is
 - `FEISHU_BOSS_REPORT_CHAT_ID`: Feishu group `向大佬汇报`
 - `LEVANTA_API_KEY`
 
+## Feishu App Permissions
+
+The boss report reminder reads live data before sending. The Feishu app/bot must have access to:
+
+- Spreadsheet `FlyLily站内数据`: `sheets:spreadsheet.meta:read`, `sheets:spreadsheet:read`
+- Base `站外投放及红人推广`: `base:table:read`, `base:record:read`
+
+If those permissions or document shares are missing, the workflow fails before sending so stale data is not posted.
+
 ## Optional GitHub Secret
 
 - `FEISHU_MAIL_SUMMARY_TEXT`: optional temporary text for the morning reminder mail-summary section. If it is not set, the workflow still sends the reminder with a manual-mail-check note.

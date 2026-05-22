@@ -17,6 +17,14 @@ These scripts are called by GitHub Actions and do not depend on the local PC.
 
 - `FEISHU_MAIL_SUMMARY_TEXT`: optional text for the morning reminder. If this secret is missing, the reminder still sends with a note to manually check the mail summary.
 
+## Feishu App Permissions
+
+`boss-report-reminder.mjs` reads live source data and will not send if the read fails.
+
+- `FlyLily站内数据`: grant `sheets:spreadsheet.meta:read` and `sheets:spreadsheet:read`
+- `站外投放及红人推广`: grant `base:table:read` and `base:record:read`
+- Share both source files with the app/bot if Feishu returns a document permission error after scopes are enabled.
+
 ## Scripts
 
 - `send-text-message.mjs`: generic Feishu text sender
