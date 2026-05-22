@@ -1,4 +1,6 @@
-import { feishuApiJson, requireEnv, sendTextMessage } from "./feishu-http.mjs";
+import { mkdir, writeFile } from "node:fs/promises";
+import { join } from "node:path";
+import { feishuApiJson, requireEnv, sendFileMessage, sendTextMessage, uploadImFile } from "./feishu-http.mjs";
 
 const DEFAULT_ADS_SPREADSHEET_TOKEN = "UKULs2H11hb948tKnhIceaYvnIU";
 const DEFAULT_ADS_SHEET_ID = "9f5381";
@@ -181,6 +183,105 @@ function topNames(rows) {
     .join("、");
 }
 
+function buildDashboardMarkdown({ ads, offsite }) {
+  return `# 独立站及站外数据仪表盘
+
+数据读取时间：${new Intl.DateTimeFormat("zh-CN", {
+    timeZone: "Asia/Shanghai",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  }).format(new Date())}（北京时间）
+
+数据来源：
+
+- FlyLily 站内数据
+- 站外投放及红人推广 / 站外需求及效果评估
+
+## 一、核心数据概览
+
+| 模块 | 指标 | 当前数据 | 说明 |
+|---|---|---:|---|
+| 独立站 | 本周销售额 | ${formatUsd(ads.sales)} | ${ads.start} 至 ${ads.end} |
+| 独立站 | 本周订单数 | ${formatCount(ads.orders)} | 当前周汇总 |
+| 独立站 | 本周广告消耗 | ${formatUsd(ads.spend)} | Meta + TK |
+| 独立站 | Meta 消耗 | ${formatUsd(ads.metaSpend)} | 当前周 Meta |
+| 独立站 | TK 消耗 | ${formatUsd(ads.tkSpend)} | 当前周 TK |
+| 独立站 | 本周总流量 | ${formatCount(ads.traffic)} | 当前周汇总 |
+| 独立站 | 本周转化率 | ${formatRate(ads.conversion)} | 当前周汇总 |
+| 独立站 | 本周综合 ROI | ${ads.roi.toFixed(2)} | 当前周汇总 |
+| 站外 | 有效记录数 | ${formatCount(offsite.records)} | 非空项目记录 |
+| 站外 | 费用总计 | ${formatCny(offsite.totalCost)} | 当前累计费用 |
+| 站外 | 出单总数 | ${formatCount(offsite.totalOrders)} | 当前累计出单 |
+| 站外 | 平均单均费用 | ${formatCny(offsite.avgCostPerOrder)} / 单 | 费用总计 / 出单总数 |
+
+## 二、独立站数据
+
+### 本周数据
+
+| 指标 | 数值 |
+|---|---:|
+| 销售额 | ${formatUsd(ads.sales)} |
+| 订单数 | ${formatCount(ads.orders)} |
+| 广告消耗 | ${formatUsd(ads.spend)} |
+| Meta 消耗 | ${formatUsd(ads.metaSpend)} |
+| TK 消耗 | ${formatUsd(ads.tkSpend)} |
+| 总流量 | ${formatCount(ads.traffic)} |
+| 跳出率 | ${formatRate(ads.bounce)} |
+| 转化率 | ${formatRate(ads.conversion)} |
+| 综合 ROI | ${ads.roi.toFixed(2)} |
+
+### 上周对比
+
+| 周期 | 销售额 | 订单数 | 广告消耗 | 总流量 | 综合 ROI |
+|---|---:|---:|---:|---:|---:|
+| ${ads.start} 至 ${ads.end} | ${formatUsd(ads.sales)} | ${formatCount(ads.orders)} | ${formatUsd(ads.spend)} | ${formatCount(ads.traffic)} | ${ads.roi.toFixed(2)} |
+| 上一周 | ${formatUsd(ads.previousSales)} | ${formatCount(ads.previousOrders)} | ${formatUsd(ads.previousSpend)} | ${formatCount(ads.previousTraffic)} | ${ads.previousRoi.toFixed(2)} |
+
+## 三、站外需求及效果评估
+
+### 汇总数据
+
+| 汇总项 | 数值 |
+|---|---:|
+| 有效记录数 | ${formatCount(offsite.records)} |
+| 费用总计 | ${formatCny(offsite.totalCost)} |
+| 出单总数 | ${formatCount(offsite.totalOrders)} |
+| 平均单均费用 | ${formatCny(offsite.avgCostPerOrder)} / 单 |
+
+### 站外出单 Top 项目
+
+| 排名 | 项目 | 出单 | 费用 |
+|---:|---|---:|---:|
+${offsite.topOrders.map((row, index) => `| ${index + 1} | ${row.name || "未命名项目"} | ${formatCount(row.orders)} | ${formatCny(row.cost)} |`).join("\n")}
+
+### 站外费用 Top 项目
+
+| 排名 | 项目 | 费用 | 出单 |
+|---:|---|---:|---:|
+${offsite.topCost.map((row, index) => `| ${index + 1} | ${row.name || "未命名项目"} | ${formatCny(row.cost)} | ${formatCount(row.orders)} |`).join("\n")}
+
+## 四、简要结论
+
+- 本周独立站统计周期为 ${ads.start} 至 ${ads.end}，销售额 ${formatUsd(ads.sales)}，订单 ${formatCount(ads.orders)}，广告消耗 ${formatUsd(ads.spend)}。
+- 站外当前累计费用 ${formatCny(offsite.totalCost)}，累计出单 ${formatCount(offsite.totalOrders)} 单，整体单均费用约 ${formatCny(offsite.avgCostPerOrder)} / 单。
+- 站外出单贡献较高的项目：${topNames(offsite.topOrders) || "暂无"}。
+`;
+}
+
+async function writeDashboardFile({ ads, offsite }) {
+  const outputDir = process.env.BOSS_REPORT_OUTPUT_DIR ?? "boss-report-output";
+  await mkdir(outputDir, { recursive: true });
+  const date = shanghaiDateString();
+  const fileName = `独立站及站外数据仪表盘-${date}.md`;
+  const filePath = join(outputDir, fileName);
+  await writeFile(filePath, buildDashboardMarkdown({ ads, offsite }), "utf8");
+  return { fileName, filePath };
+}
+
 function buildMessage({ ads, offsite }) {
   const generatedAt = new Intl.DateTimeFormat("zh-CN", {
     timeZone: "Asia/Shanghai",
@@ -228,18 +329,30 @@ async function main() {
   const ads = await readAdsSummary();
   const offsite = await readOffsiteSummary();
   const text = buildMessage({ ads, offsite });
+  const dashboard = await writeDashboardFile({ ads, offsite });
 
   if (process.argv.includes("--preview")) {
     console.log(text);
+    console.log(`\nDashboard file: ${dashboard.filePath}`);
     return;
   }
 
+  const fileKey = await uploadImFile({
+    filePath: dashboard.filePath,
+    fileName: dashboard.fileName,
+  });
   const messageId = await sendTextMessage({
     receiveIdType: "chat_id",
     receiveId: process.env.FEISHU_BOSS_REPORT_CHAT_ID,
     text,
   });
   console.log(`Sent Feishu message: ${messageId ?? "(no message id returned)"}`);
+  const fileMessageId = await sendFileMessage({
+    receiveIdType: "chat_id",
+    receiveId: process.env.FEISHU_BOSS_REPORT_CHAT_ID,
+    fileKey,
+  });
+  console.log(`Sent Feishu dashboard file: ${fileMessageId ?? "(no message id returned)"}`);
 }
 
 main().catch((error) => {

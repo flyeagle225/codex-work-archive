@@ -24,3 +24,11 @@ jobs:
           FEISHU_APP_SECRET: ${{ secrets.FEISHU_APP_SECRET }}
           FEISHU_BOSS_REPORT_CHAT_ID: ${{ secrets.FEISHU_BOSS_REPORT_CHAT_ID }}
         run: node ./cloud/boss-report-reminder.mjs
+
+      - name: Upload generated dashboard artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: boss-report-dashboard
+          path: boss-report-output/**
+          if-no-files-found: ignore

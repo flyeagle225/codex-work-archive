@@ -31,6 +31,7 @@ The boss report reminder reads live data before sending. The Feishu app/bot must
 
 - Spreadsheet `FlyLily站内数据`: `sheets:spreadsheet.meta:read`, `sheets:spreadsheet:read`
 - Base `站外投放及红人推广`: `base:table:read`, `base:record:read`
+- IM dashboard file attachment: `im:resource` (file upload) and `im:message` (send message)
 
 If those permissions or document shares are missing, the workflow fails before sending so stale data is not posted.
 
