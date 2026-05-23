@@ -122,6 +122,7 @@ export async function uploadDriveFile({ filePath, fileName, mimeType = "text/mar
   form.append("file_name", fileName);
   form.append("parent_type", "explorer");
   form.append("parent_node", "");
+  form.append("size", String(bytes.byteLength));
   form.append("file", new Blob([bytes], { type: mimeType }), fileName);
 
   const data = await requestMultipartJson("https://open.feishu.cn/open-apis/drive/v1/files/upload_all", {

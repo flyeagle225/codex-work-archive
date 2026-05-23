@@ -363,7 +363,7 @@ async function main() {
   if (!driveFileToken) {
     throw new Error("Feishu Drive upload did not return a file token.");
   }
-  const dashboardLink = `${process.env.FEISHU_FILE_BASE_URL ?? "https://acnnjmus15ma.feishu.cn"}/file/${driveFileToken}`;
+  const dashboardLink = `${process.env.FEISHU_FILE_BASE_URL ?? "https://www.feishu.cn"}/file/${driveFileToken}`;
   const text = buildMessage({ ads, offsite, dashboardLink });
 
   const fileKey = await uploadImFile({

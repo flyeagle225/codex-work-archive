@@ -1,4 +1,4 @@
-import { requireEnv, sendTextMessage } from "./feishu-http.mjs";
+import { requireEnv, sendTextMessage, uploadDriveFile } from "./feishu-http.mjs";
 import { readAdsSummary, readOffsiteSummary, writeDashboardFile } from "./boss-report-reminder.mjs";
 
 async function fetchLevantaSummary() {
@@ -29,7 +29,7 @@ async function fetchLevantaSummary() {
   return `Levanta 当前连接红人数：${total}。今日目标：触达 500 个红人，并新增 5 个可合作红人数据。`;
 }
 
-async function buildMessage() {
+async function buildMessage({ uploadDashboardLink = true } = {}) {
   const mailSummary =
     process.env.FEISHU_MAIL_SUMMARY_TEXT?.trim() ||
     "邮件汇总尚未接入云端自动读取。请今天手动查看昨天黄观锦 CC 给你的红人邮件。";
@@ -37,6 +37,17 @@ async function buildMessage() {
   const ads = await readAdsSummary();
   const offsite = await readOffsiteSummary();
   const dashboard = await writeDashboardFile({ ads, offsite });
+  let dashboardLink = "预览模式未上传；正式发送时会生成可打开链接。";
+  if (uploadDashboardLink) {
+    const driveFileToken = await uploadDriveFile({
+      filePath: dashboard.filePath,
+      fileName: dashboard.fileName,
+    });
+    if (!driveFileToken) {
+      throw new Error("Feishu Drive upload did not return a file token.");
+    }
+    dashboardLink = `${process.env.FEISHU_FILE_BASE_URL ?? "https://www.feishu.cn"}/file/${driveFileToken}`;
+  }
 
   return `【每日早报｜Levanta 和投流数据】
 早上好，今天先看这三件事：
@@ -66,8 +77,7 @@ async function buildMessage() {
    重点看昨日花费、出单量、CPC、千展成本、ROI / CPA 是否异常。
    https://acnnjmus15ma.feishu.cn/sheets/UKULs2H11hb948tKnhIceaYvnIU?from=from_copylink
 
-   最新仪表盘已在云端生成：${dashboard.fileName}
-   说明：旧固定仪表盘链接已移除，避免误导；飞书 Drive 上传权限生效后会自动发送可打开链接。
+   最新仪表盘：${dashboardLink}
 
 3. 查看黄观锦 CC 给你的红人邮件。
 ${mailSummary}
@@ -77,12 +87,13 @@ ${mailSummary}
 
 async function main() {
   requireEnv(["FEISHU_APP_ID", "FEISHU_APP_SECRET", "FEISHU_RECEIVE_ID_TYPE", "FEISHU_RECEIVE_ID"]);
-  const text = await buildMessage();
   if (process.argv.includes("--preview")) {
+    const text = await buildMessage({ uploadDashboardLink: false });
     console.log(text);
     return;
   }
 
+  const text = await buildMessage();
   const messageId = await sendTextMessage({
     receiveIdType: process.env.FEISHU_RECEIVE_ID_TYPE,
     receiveId: process.env.FEISHU_RECEIVE_ID,
