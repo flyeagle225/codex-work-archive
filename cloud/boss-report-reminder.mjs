@@ -1,5 +1,6 @@
 import { mkdir, writeFile } from "node:fs/promises";
 import { join } from "node:path";
+import { pathToFileURL } from "node:url";
 import {
   feishuApiJson,
   requireEnv,
@@ -105,7 +106,7 @@ function weekSummaryFromRows(rows, targetDate = shanghaiDateString()) {
   throw new Error("No weekly summary row found in FlyLily spreadsheet.");
 }
 
-async function readAdsSummary() {
+export async function readAdsSummary() {
   const spreadsheetToken = process.env.FEISHU_ADS_SPREADSHEET_TOKEN ?? DEFAULT_ADS_SPREADSHEET_TOKEN;
   const sheetId = process.env.FEISHU_ADS_SHEET_ID ?? DEFAULT_ADS_SHEET_ID;
   const range = `${sheetId}!A1:AE80`;
@@ -144,7 +145,7 @@ async function readAdsSummary() {
   };
 }
 
-async function readOffsiteSummary() {
+export async function readOffsiteSummary() {
   const baseToken = process.env.FEISHU_OFFSITE_BASE_TOKEN ?? DEFAULT_OFFSITE_BASE_TOKEN;
   const tableId = process.env.FEISHU_OFFSITE_TABLE_ID ?? DEFAULT_OFFSITE_TABLE_ID;
   const rows = [];
@@ -201,7 +202,7 @@ function topNames(rows) {
     .join("、");
 }
 
-function buildDashboardMarkdown({ ads, offsite }) {
+export function buildDashboardMarkdown({ ads, offsite }) {
   return `# 独立站及站外数据仪表盘
 
 数据读取时间：${new Intl.DateTimeFormat("zh-CN", {
@@ -290,7 +291,7 @@ ${offsite.topCost.map((row, index) => `| ${index + 1} | ${row.name || "未命名
 `;
 }
 
-async function writeDashboardFile({ ads, offsite }) {
+export async function writeDashboardFile({ ads, offsite }) {
   const outputDir = process.env.BOSS_REPORT_OUTPUT_DIR ?? "boss-report-output";
   await mkdir(outputDir, { recursive: true });
   const date = shanghaiDateString();
@@ -300,7 +301,7 @@ async function writeDashboardFile({ ads, offsite }) {
   return { fileName, filePath };
 }
 
-function buildMessage({ ads, offsite, dashboardLink }) {
+export function buildMessage({ ads, offsite, dashboardLink }) {
   const generatedAt = new Intl.DateTimeFormat("zh-CN", {
     timeZone: "Asia/Shanghai",
     year: "numeric",
@@ -383,7 +384,9 @@ async function main() {
   console.log(`Sent Feishu dashboard file: ${fileMessageId ?? "(no message id returned)"}`);
 }
 
-main().catch((error) => {
-  console.error(error.message);
-  process.exit(1);
-});
+if (import.meta.url === pathToFileURL(process.argv[1]).href) {
+  main().catch((error) => {
+    console.error(error.message);
+    process.exit(1);
+  });
+}
