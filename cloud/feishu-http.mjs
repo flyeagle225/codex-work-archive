@@ -115,6 +115,25 @@ export async function uploadImFile({ filePath, fileName, mimeType = "text/markdo
   return data.data?.file_key;
 }
 
+export async function uploadDriveFile({ filePath, fileName, mimeType = "text/markdown" }) {
+  const token = await getTenantAccessToken();
+  const bytes = await readFile(filePath);
+  const form = new FormData();
+  form.append("file_name", fileName);
+  form.append("parent_type", "explorer");
+  form.append("parent_node", "");
+  form.append("file", new Blob([bytes], { type: mimeType }), fileName);
+
+  const data = await requestMultipartJson("https://open.feishu.cn/open-apis/drive/v1/files/upload_all", {
+    headers: { authorization: `Bearer ${token}` },
+    form,
+  });
+  if (data.code !== 0) {
+    throw new Error(`Failed to upload Feishu Drive file: ${data.msg}`);
+  }
+  return data.data?.file_token ?? data.data?.file?.token ?? data.data?.token;
+}
+
 export async function sendFileMessage({ receiveIdType, receiveId, fileKey }) {
   const token = await getTenantAccessToken();
   const data = await requestJson(

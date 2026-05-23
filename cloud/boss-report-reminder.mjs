@@ -1,6 +1,13 @@
 import { mkdir, writeFile } from "node:fs/promises";
 import { join } from "node:path";
-import { feishuApiJson, requireEnv, sendFileMessage, sendTextMessage, uploadImFile } from "./feishu-http.mjs";
+import {
+  feishuApiJson,
+  requireEnv,
+  sendFileMessage,
+  sendTextMessage,
+  uploadDriveFile,
+  uploadImFile,
+} from "./feishu-http.mjs";
 
 const DEFAULT_ADS_SPREADSHEET_TOKEN = "UKULs2H11hb948tKnhIceaYvnIU";
 const DEFAULT_ADS_SHEET_ID = "9f5381";
@@ -153,8 +160,19 @@ async function readOffsiteSummary() {
       throw new Error(`Failed to read offsite base records: ${data.msg}`);
     }
 
-    for (const item of data.data?.items ?? []) {
-      const fields = item.fields ?? {};
+    const records = Array.isArray(data.data?.items)
+      ? data.data.items.map((item) => item.fields ?? {})
+      : Array.isArray(data.data?.data)
+        ? data.data.data.map((row) => {
+            const mapped = {};
+            for (const [index, fieldName] of (data.data.fields ?? []).entries()) {
+              mapped[fieldName] = row[index];
+            }
+            return mapped;
+          })
+        : [];
+
+    for (const fields of records) {
       const name = toPlainText(fields["文本"]).trim();
       const cost = toNumber(fields["费用"]);
       const orders = toNumber(fields["出单总数"]);
@@ -282,7 +300,7 @@ async function writeDashboardFile({ ads, offsite }) {
   return { fileName, filePath };
 }
 
-function buildMessage({ ads, offsite }) {
+function buildMessage({ ads, offsite, dashboardLink }) {
   const generatedAt = new Intl.DateTimeFormat("zh-CN", {
     timeZone: "Asia/Shanghai",
     year: "numeric",
@@ -296,6 +314,7 @@ function buildMessage({ ads, offsite }) {
   return `各位大佬好，本周【独立站及站外数据仪表盘】已更新，烦请查阅。
 
 数据读取时间：${generatedAt}（北京时间）
+仪表盘链接：${dashboardLink ?? "生成后随消息发送"}
 
 本周核心数据简要汇总如下：
 
@@ -328,14 +347,23 @@ async function main() {
   requireEnv(["FEISHU_APP_ID", "FEISHU_APP_SECRET", "FEISHU_BOSS_REPORT_CHAT_ID"]);
   const ads = await readAdsSummary();
   const offsite = await readOffsiteSummary();
-  const text = buildMessage({ ads, offsite });
   const dashboard = await writeDashboardFile({ ads, offsite });
 
   if (process.argv.includes("--preview")) {
-    console.log(text);
+    console.log(buildMessage({ ads, offsite }));
     console.log(`\nDashboard file: ${dashboard.filePath}`);
     return;
   }
+
+  const driveFileToken = await uploadDriveFile({
+    filePath: dashboard.filePath,
+    fileName: dashboard.fileName,
+  });
+  if (!driveFileToken) {
+    throw new Error("Feishu Drive upload did not return a file token.");
+  }
+  const dashboardLink = `${process.env.FEISHU_FILE_BASE_URL ?? "https://acnnjmus15ma.feishu.cn"}/file/${driveFileToken}`;
+  const text = buildMessage({ ads, offsite, dashboardLink });
 
   const fileKey = await uploadImFile({
     filePath: dashboard.filePath,

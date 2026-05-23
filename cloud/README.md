@@ -24,6 +24,7 @@ These scripts are called by GitHub Actions and do not depend on the local PC.
 - `FlyLily站内数据`: grant `sheets:spreadsheet.meta:read` and `sheets:spreadsheet:read`
 - `站外投放及红人推广`: grant `base:table:read` and `base:record:read`
 - Dashboard file attachment: grant `im:resource` for file upload and keep `im:message` for sending messages
+- Dashboard share link: grant `drive:file:upload`
 - Share both source files with the app/bot if Feishu returns a document permission error after scopes are enabled.
 
 ## Scripts
