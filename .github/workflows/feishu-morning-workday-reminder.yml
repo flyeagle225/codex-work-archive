@@ -1,8 +1,9 @@
-name: Feishu Morning Workday Reminder
+name: Feishu Morning Daily Reminder
 
 on:
   schedule:
-    - cron: "0 2 * * 1-5"
+    # 10:00 Asia/Shanghai = 02:00 UTC
+    - cron: "0 2 * * *"
   workflow_dispatch:
 
 jobs:
@@ -23,4 +24,5 @@ jobs:
           FEISHU_APP_SECRET: ${{ secrets.FEISHU_APP_SECRET }}
           FEISHU_RECEIVE_ID_TYPE: open_id
           FEISHU_RECEIVE_ID: ${{ secrets.FEISHU_MORNING_OPEN_ID }}
+          LEVANTA_API_KEY: ${{ secrets.LEVANTA_API_KEY }}
         run: node ./cloud/morning-workday-reminder.mjs
