@@ -6,6 +6,9 @@ on:
     - cron: "0 10 * * 1"
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   send-reminder:
     runs-on: ubuntu-latest
@@ -19,11 +22,26 @@ jobs:
           node-version: "20"
 
       - name: Send boss report reminder
+        id: send
+        continue-on-error: true
         env:
           FEISHU_APP_ID: ${{ secrets.FEISHU_APP_ID }}
           FEISHU_APP_SECRET: ${{ secrets.FEISHU_APP_SECRET }}
           FEISHU_BOSS_REPORT_CHAT_ID: ${{ secrets.FEISHU_BOSS_REPORT_CHAT_ID }}
-        run: node ./cloud/boss-report-reminder.mjs
+        run: node ./cloud/run-and-record.mjs feishu-boss-report-weekly-reminder -- node ./cloud/boss-report-reminder.mjs
+
+      - name: Commit run evidence
+        if: always()
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add automation-runs boss-report-output
+          git diff --cached --quiet || git commit -m "Archive boss report reminder run evidence"
+          for i in 1 2 3; do
+            git pull --rebase origin main
+            git push && break
+            sleep 5
+          done
 
       - name: Upload generated dashboard artifact
         if: always()
@@ -32,3 +50,7 @@ jobs:
           name: boss-report-dashboard
           path: boss-report-output/**
           if-no-files-found: ignore
+
+      - name: Fail if reminder failed
+        if: steps.send.outcome == 'failure'
+        run: exit 1
