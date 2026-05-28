@@ -1,0 +1,34 @@
+name: Daily Feishu Sync
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 1 * * *"
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    env:
+      FEISHU_APP_ID: ${{ secrets.FEISHU_APP_ID }}
+      FEISHU_APP_SECRET: ${{ secrets.FEISHU_APP_SECRET }}
+      FEISHU_REPORT_CHAT_ID: ${{ secrets.FEISHU_REPORT_CHAT_ID }}
+      FEISHU_BASE_APP_TOKEN: ${{ secrets.FEISHU_BASE_APP_TOKEN }}
+      FEISHU_BASE_TABLE_ID: ${{ secrets.FEISHU_BASE_TABLE_ID }}
+      FEISHU_INFLUENCER_CHAT_ID: ${{ secrets.FEISHU_INFLUENCER_CHAT_ID }}
+    steps:
+      - name: Check out archive
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Run daily report
+        run: python feishu/daily_report.py
+
+      - name: Run SEO database sync
+        run: python feishu/seo_database_sync.py
+
+      - name: Run influencer follow-up
+        run: python feishu/influencer_followup.py
