@@ -1,0 +1,4 @@
+interface:
+  display_name: "Superpowers Workflow"
+  short_description: "Design, implement, debug, and verify software methodically"
+  default_prompt: "Use $superpowers-workflow to take this software task from intent through verified completion."
