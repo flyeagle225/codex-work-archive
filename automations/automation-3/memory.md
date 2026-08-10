@@ -10,3 +10,8 @@
 - User request: Add the missing daily reminder for the off-site coordination group to the reminder archive and upload it locally/GitHub.
 - Action: Updated `automations/2026-05-21-reminders.md` with a new "站外对接群每日信息提醒" section and cleaned the archive content.
 - Status: Group chat ID and executable script are still pending because the current Feishu CLI user auth lacks `im:chat:read` for chat lookup.
+
+- Run time: 2026-08-11T01:05:28.2350414+08:00
+- Action: Executed `node send_lihui_daily_data_reminder.js` after confirming the script matches `origin/main`.
+- Result: Failed; Feishu API error 230013 — HTTP 400: Bot has NO availability to this user.
+- Message ID: none.
